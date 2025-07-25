@@ -2,46 +2,31 @@ pipeline {
     agent any
 
     environment {
-        TF_DIR = "${WORKSPACE}/terraform-jenkins-pipeline"
+        TF_DIR = "${WORKSPACE}"
     }
 
     stages {
-        stage('Clone Local Repo') {
-            steps {
-                // If using GitHub, replace with remote URL
-                sh 'git clone /path/to/your/local/terraform-jenkins-pipeline.git'
-            }
-        }
-
         stage('Terraform Init') {
             steps {
-                dir('terraform-jenkins-pipeline') {
-                    sh 'terraform init'
-                }
+                sh 'terraform init'
             }
         }
 
         stage('Terraform Validate') {
             steps {
-                dir('terraform-jenkins-pipeline') {
-                    sh 'terraform validate'
-                }
+                sh 'terraform validate'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                dir('terraform-jenkins-pipeline') {
-                    sh 'terraform plan -var-file="terraform.tfvars"'
-                }
+                sh 'terraform plan -var-file="terraform.tfvars"'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                dir('terraform-jenkins-pipeline') {
-                    sh 'terraform apply -auto-approve -var-file="terraform.tfvars"'
-                }
+                sh 'terraform apply -auto-approve -var-file="terraform.tfvars"'
             }
         }
     }
