@@ -1,37 +1,45 @@
+terraform {
+  required_providers {
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.1"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2"
+    }
+  }
+}
+
 variable "output_dirs" {
+  type    = list(string)
   default = ["a", "b"]
 }
 
-variable "file_names" {
-  default = ["a/filea.txt", "b/fileb.txt"]
-}
-
-variable "file_content" {
-  default = "Hello from Terraform via Jenkins!"
-}
-
-# For Linux (mkdir -p)
-resource "null_resource" "linux_directories" {
-  count = terraform.workspace == "linux" ? length(var.output_dirs) : 0
+resource "null_resource" "create_dirs_linux" {
+  count = terraform.workspace == "linux" ? 1 : 0
 
   provisioner "local-exec" {
-    command = "mkdir -p ${var.output_dirs[count.index]}"
+    command = "mkdir -p ${var.output_dirs[0]} ${var.output_dirs[1]}"
   }
 }
 
-# For Windows (mkdir)
-resource "null_resource" "windows_directories" {
-  count = terraform.workspace == "windows" ? length(var.output_dirs) : 0
+resource "null_resource" "create_dirs_windows" {
+  count = terraform.workspace == "windows" ? 1 : 0
 
   provisioner "local-exec" {
-    command     = "mkdir ${var.output_dirs[count.index]}"
-    interpreter = ["cmd", "/C"]
+    command = "mkdir ${var.output_dirs[0]} && mkdir ${var.output_dirs[1]}"
   }
 }
 
-# Create files inside folders
-resource "local_file" "files" {
-  count    = length(var.file_names)
-  filename = "${path.module}/${var.file_names[count.index]}"
-  content  = var.file_content
+resource "local_file" "filea" {
+  count    = terraform.workspace == "linux" || terraform.workspace == "windows" ? 1 : 0
+  filename = "${var.output_dirs[0]}/filea.txt"
+  content  = "File A created by Terraform!"
+}
+
+resource "local_file" "fileb" {
+  count    = terraform.workspace == "linux" || terraform.workspace == "windows" ? 1 : 0
+  filename = "${var.output_dirs[1]}/fileb.txt"
+  content  = "File B created by Terraform!"
 }
