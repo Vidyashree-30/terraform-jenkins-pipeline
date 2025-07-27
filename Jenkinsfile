@@ -14,7 +14,7 @@ pipeline {
                     terraform validate
                     terraform plan -var-file=terraform.tfvars -out=tfplan.out
                     terraform apply -auto-approve tfplan.out
-                    ls -l file1.txt file2.txt
+                    ls -l dir1/file1.txt dir1/file2.txt
                     ls -ld dir1 dir2
                 '''
             }
@@ -32,8 +32,8 @@ pipeline {
                     terraform validate
                     terraform plan -var-file=terraform.tfvars -out=tfplan.out
                     terraform apply -auto-approve tfplan.out
-                    dir file1.txt
-                    dir file2.txt
+                    dir dir1\\file1.txt
+                    dir dir1\\file2.txt
                     dir dir1
                     dir dir2
                 '''
