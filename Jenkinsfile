@@ -6,7 +6,7 @@ pipeline {
             agent { label 'node1' }
 
             steps {
-                git branch: 'qa', url: 'https://github.com/Vidyashree-30/terraform-jenkins-pipeline.git'
+                git branch: 'dev', url: 'https://github.com/Vidyashree-30/terraform-jenkins-pipeline.git'
 
                 sh '''
                     terraform workspace new linux || terraform workspace select linux
