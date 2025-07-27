@@ -2,10 +2,16 @@ pipeline {
     agent any
 
     environment {
-        TF_DIR = "${WORKSPACE}"
+        TF_DIR = "${WORKSPACE}/terraform"
     }
 
     stages {
+        stage('Clone Repository') {
+            steps {
+                branch:"dev" git url: 'https://github.com/vidyashree-30/terraform-jenkins-pipeline.git'
+            }
+        }
+
         stage('Terraform Init') {
             steps {
                 sh 'terraform init'
@@ -20,23 +26,25 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                sh 'terraform plan -var-file="terraform.tfvars"'
+                sh 'terraform plan -out=tfplan.out'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh 'terraform apply -auto-approve -var-file="terraform.tfvars"'
+                sh 'terraform apply -auto-approve tfplan.out'
             }
         }
     }
 
     post {
         success {
-            echo '✅ Terraform resources created successfully!'
+            echo 'Terraform executed successfully.'
+            sh 'ls -l file1.txt file2.txt'
+            sh 'ls -ld dir1 dir2'
         }
         failure {
-            echo '❌ Something went wrong.'
+            echo 'Pipeline failed.'
         }
     }
 }
