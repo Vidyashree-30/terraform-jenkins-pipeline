@@ -1,21 +1,16 @@
-resource "local_file" "file1" {
-  filename = "${path.module}/file1.txt"
-  content  = "This is file1"
-}
+# Loop over each directory and create it using null_resource + local-exec
+resource "null_resource" "directories" {
+  count = length(var.output_dirs)
 
-resource "local_file" "file2" {
-  filename = "${path.module}/file2.txt"
-  content  = "This is file2"
-}
-
-resource "null_resource" "directory1" {
   provisioner "local-exec" {
-    command = "mkdir -p ${path.module}/dir1"
+    command = "${terraform.workspace == "windows" ? "mkdir ${var.output_dirs[count.index]}" : "mkdir -p ${var.output_dirs[count.index]}"}"
+    interpreter = terraform.workspace == "windows" ? ["cmd", "/C"] : ["/bin/bash", "-c"]
   }
 }
 
-resource "null_resource" "directory2" {
-  provisioner "local-exec" {
-    command = "mkdir -p ${path.module}/dir2"
-  }
+# Loop over each file and create it using local_file
+resource "local_file" "files" {
+  count    = length(var.file_names)
+  filename = "${path.module}/${var.file_names[count.index]}"
+  content  = var.file_content
 }
