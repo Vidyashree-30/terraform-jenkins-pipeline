@@ -21,7 +21,7 @@ pipeline {
         }
 
         stage('Run on Windows Agent') {
-            agent { label 'windows-agent' }
+            agent { label 'windows_node' }
 
             steps {
                 git branch: 'main', url: 'https://github.com/Vidyashree-30/terraform-jenkins-pipeline.git'
