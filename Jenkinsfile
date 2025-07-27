@@ -6,7 +6,7 @@ pipeline {
             agent { label 'node1' }
 
             steps {
-                git branch: 'main', url: 'https://github.com/Vidyashree-30/terraform-jenkins-pipeline.git'
+                git branch: 'qa', url: 'https://github.com/Vidyashree-30/terraform-jenkins-pipeline.git'
 
                 sh '''
                     terraform workspace new linux || terraform workspace select linux
@@ -14,8 +14,8 @@ pipeline {
                     terraform validate
                     terraform plan -var-file=terraform.tfvars -out=tfplan.out
                     terraform apply -auto-approve tfplan.out
-                    ls -l dir1/file1.txt dir1/file2.txt
-                    ls -ld dir1 dir2
+                    ls -l a/filea.txt b/fileb.txt
+                    ls -ld a b
                 '''
             }
         }
@@ -32,10 +32,10 @@ pipeline {
                     terraform validate
                     terraform plan -var-file=terraform.tfvars -out=tfplan.out
                     terraform apply -auto-approve tfplan.out
-                    dir dir1\\file1.txt
-                    dir dir1\\file2.txt
-                    dir dir1
-                    dir dir2
+                    dir a\\filea.txt
+                    dir b\\fileb.txt
+                    dir a
+                    dir b
                 '''
             }
         }
