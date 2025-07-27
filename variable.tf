@@ -1,15 +1,17 @@
 variable "file_names" {
-  description = "List of files to create"
+  description = "List of file names"
   type        = list(string)
-}
-
-variable "output_dirs" {
-  description = "List of directories to create"
-  type        = list(string)
+  default     = ["file1.txt", "file2.txt"]
 }
 
 variable "file_content" {
-  description = "Content to write into the files"
+  description = "Content for files"
   type        = string
+  default     = "Hello from Terraform via Jenkins!"
 }
 
+variable "output_dirs" {
+  description = "Directories to create"
+  type        = list(string)
+  default     = ["dir1", "dir2"]
+}
