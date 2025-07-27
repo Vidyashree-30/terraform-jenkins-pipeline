@@ -1,51 +1,52 @@
 pipeline {
-    agent any
-
-    environment {
-        TF_DIR = "${WORKSPACE}/terraform"
-    }
+    agent none
 
     stages {
-        stage('Clone Repository') {
-            steps {
-               git branch: 'dev', url: 'https://github.com/Vidyashree-30/terraform-jenkins-pipeline.git'
+        stage('Run on Linux Agent') {
+            agent { label 'node1' }
 
+            steps {
+                git branch: 'main', url: 'https://github.com/Vidyashree-30/terraform-jenkins-pipeline.git'
+
+                sh '''
+                    terraform workspace new linux || terraform workspace select linux
+                    terraform init
+                    terraform validate
+                    terraform plan -var-file=terraform.tfvars -out=tfplan.out
+                    terraform apply -auto-approve tfplan.out
+                    ls -l file1.txt file2.txt
+                    ls -ld dir1 dir2
+                '''
             }
         }
 
-        stage('Terraform Init') {
-            steps {
-                sh 'terraform init'
-            }
-        }
+        stage('Run on Windows Agent') {
+            agent { label 'windows-node' }
 
-        stage('Terraform Validate') {
             steps {
-                sh 'terraform validate'
-            }
-        }
+                git branch: 'main', url: 'https://github.com/Vidyashree-30/terraform-jenkins-pipeline.git'
 
-        stage('Terraform Plan') {
-            steps {
-                sh 'terraform plan -out=tfplan.out'
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                sh 'terraform apply -auto-approve tfplan.out'
+                bat '''
+                    terraform workspace new windows || terraform workspace select windows
+                    terraform init
+                    terraform validate
+                    terraform plan -var-file=terraform.tfvars -out=tfplan.out
+                    terraform apply -auto-approve tfplan.out
+                    dir file1.txt
+                    dir file2.txt
+                    dir dir1
+                    dir dir2
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'Terraform executed successfully.'
-            sh 'ls -l file1.txt file2.txt'
-            sh 'ls -ld dir1 dir2'
+            echo "✅ Terraform execution completed on both Linux and Windows nodes."
         }
         failure {
-            echo 'Pipeline failed.'
+            echo "❌ Terraform pipeline failed."
         }
     }
 }
