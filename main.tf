@@ -10,21 +10,26 @@ variable "file_content" {
   default = "Hello from Terraform via Jenkins!"
 }
 
-# Create directories a and b
-resource "null_resource" "directories" {
-  count = length(var.output_dirs)
+# For Linux (mkdir -p)
+resource "null_resource" "linux_directories" {
+  count = terraform.workspace == "linux" ? length(var.output_dirs) : 0
 
   provisioner "local-exec" {
-    command = terraform.workspace == "windows" ?
-      "mkdir ${var.output_dirs[count.index]}" :
-      "mkdir -p ${var.output_dirs[count.index]}"
-      
-    interpreter = terraform.workspace == "windows" ?
-      ["cmd", "/C"] : ["/bin/bash", "-c"]
+    command = "mkdir -p ${var.output_dirs[count.index]}"
   }
 }
 
-# Create files filea.txt and fileb.txt
+# For Windows (mkdir)
+resource "null_resource" "windows_directories" {
+  count = terraform.workspace == "windows" ? length(var.output_dirs) : 0
+
+  provisioner "local-exec" {
+    command     = "mkdir ${var.output_dirs[count.index]}"
+    interpreter = ["cmd", "/C"]
+  }
+}
+
+# Create files inside folders
 resource "local_file" "files" {
   count    = length(var.file_names)
   filename = "${path.module}/${var.file_names[count.index]}"
